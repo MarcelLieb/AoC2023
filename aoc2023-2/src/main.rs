@@ -11,10 +11,10 @@ fn main() {
     let part_one: u32 = input
         .iter()
         .map(|line| parse_game(&line))
-        .filter_map(|(game, counts)| {
-            if counts["red"] <= cubes["red"]
-                && counts["green"] <= cubes["green"]
-                && counts["blue"] <= cubes["blue"]
+        .filter_map(|(game, count)| {
+            if count["red"] <= cubes["red"]
+                && count["green"] <= cubes["green"]
+                && count["blue"] <= cubes["blue"]
             {
                 Some(game)
             } else {
@@ -28,7 +28,7 @@ fn main() {
     let part_two: u32 = input
         .iter()
         .map(|line| parse_game(&line))
-        .map(|(_, counts)| counts["green"] * counts["blue"] * counts["red"])
+        .map(|(_, count)| count["red"] * count["green"] * count["blue"])
         .sum();
 
     println!("{}", part_two);

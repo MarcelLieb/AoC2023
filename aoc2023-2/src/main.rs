@@ -7,14 +7,14 @@ fn main() {
         .split('\n')
         .map(str::to_string)
         .collect();
-    let balls = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
+    let cubes = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
     let part_one: u32 = input
         .iter()
         .map(|line| parse_game(&line))
         .filter_map(|(game, counts)| {
-            if counts["red"] <= balls["red"]
-                && counts["green"] <= balls["green"]
-                && counts["blue"] <= balls["blue"]
+            if counts["red"] <= cubes["red"]
+                && counts["green"] <= cubes["green"]
+                && counts["blue"] <= cubes["blue"]
             {
                 Some(game)
             } else {

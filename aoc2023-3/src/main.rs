@@ -1,4 +1,4 @@
-use std::{fs, ops::Range, str::Chars};
+use std::{fs, ops::{Range, RangeInclusive}, str::Chars};
 
 use regex::Regex;
 
@@ -18,8 +18,6 @@ fn main() {
 
     let regex = Regex::new("[0-9]+").unwrap();
 
-    /*
-    */
     let part_one: u32 = input
         .iter()
         .map(|str| regex.find_iter(&str))
@@ -59,11 +57,8 @@ fn main() {
 }
 
 fn check_boundary(input: &[Vec<char>], row: usize, pos: Range<usize>) -> bool {
-    let rows = row.saturating_sub(1)..=(row + 1).min(input.len() - 1);
-
-    for y in rows {
-        let cols = pos.clone().next().unwrap().saturating_sub(1)..=(pos.clone().last().unwrap() + 1).min(input[y].len() - 1);
-        for x in cols {
+    for y in input.bounded_range_inclusive(row.saturating_sub(1)..=(row + 1)) {
+        for x in input[y].bounded_range_inclusive(pos.clone().next().unwrap().saturating_sub(1)..=pos.clone().last().unwrap() + 1) {
             if input[y][x].is_digit(10) || input[y][x] == '.' {
                 continue;
             }
@@ -75,8 +70,7 @@ fn check_boundary(input: &[Vec<char>], row: usize, pos: Range<usize>) -> bool {
 
 fn find_gears(input: &[String], row: usize, col: usize, regex: Regex) -> u32 {
     let mut matches: Vec<_> = regex.find_iter(&input[row]).collect();
-    let rows = row.saturating_sub(1)..=(row + 1).min(input.len() - 1);
-    for y in rows {
+    for y in input.bounded_range_inclusive(row.saturating_sub(1)..=(row + 1)) {
         if y != row {
             let mut mat = regex.find_iter(&input[y]).collect::<Vec<_>>();
             matches.append(&mut mat);
@@ -92,4 +86,34 @@ fn find_gears(input: &[String], row: usize, col: usize, regex: Regex) -> u32 {
         return 0;
     }
     matches[0].as_str().parse::<u32>().unwrap() * matches[1].as_str().parse::<u32>().unwrap()
+}
+
+trait BoundChecks {
+    fn bounded_range(&self, range: Range<usize>) -> Range<usize>;
+    fn bounded_range_inclusive(&self, range: RangeInclusive<usize>) -> RangeInclusive<usize>;
+}
+
+impl<T> BoundChecks for Vec<T> {
+    fn bounded_range(&self, range: Range<usize>) -> Range<usize> {
+        let mut range = range;
+        range.next().unwrap().max(0)..
+        range.last().unwrap().min(self.len())
+    }
+
+    fn bounded_range_inclusive(&self, range: RangeInclusive<usize>) -> RangeInclusive<usize> {
+        let mut range = range;
+        range.next().unwrap().max(0)..=range.last().unwrap().min(self.len() - 1)
+    }
+}
+
+impl<T> BoundChecks for [T] {
+    fn bounded_range(&self, range: Range<usize>) -> Range<usize> {
+        let mut range = range;
+        range.next().unwrap().max(0)..range.last().unwrap().min(self.len())
+    }
+
+    fn bounded_range_inclusive(&self, range: RangeInclusive<usize>) -> RangeInclusive<usize> {
+        let mut range = range;
+        range.next().unwrap().max(0)..=range.last().unwrap().min(self.len() - 1)
+    }
 }

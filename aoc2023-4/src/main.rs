@@ -74,12 +74,12 @@ fn parse_card(card: &str) -> (u32, Vec<u32>, Vec<u32>) {
     (card, winning, numbers)
 }
 
-struct DefaultHashMap<K: Eq + PartialEq + Hash, V: Clone> {
+struct DefaultHashMap<K: Eq + Hash, V: Clone> {
     inner: HashMap<K, V>,
     default_value: V,
 }
 
-impl<K: Eq + PartialEq + Hash, V: Clone> DefaultHashMap<K, V> {
+impl<K: Eq + Hash, V: Clone> DefaultHashMap<K, V> {
     fn new(default: V) -> DefaultHashMap<K, V> {
         DefaultHashMap {
             inner: HashMap::new(),
@@ -98,11 +98,18 @@ impl<K: Eq + PartialEq + Hash, V: Clone> DefaultHashMap<K, V> {
     }
 }
 
-impl<K: Eq + PartialEq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
+impl<K: Eq + Hash, V: Default + Clone> Default for DefaultHashMap<K, V> {
+    fn default() -> Self {
+        Self { inner: HashMap::new(), default_value: V::default() }
+    }
+}
+
+impl<K: Eq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
     type Output = V;
-    /*
-    Don't use this if you want the entry to be added
-     */
+    /// Returns the `value` corresponding to `index` or the specified [default_value](DefaultHashMap::default_value) if it doesn't exist
+    /// 
+    /// Don't use this if you want the key to be added, use [get_default](DefaultHashMap::get_default) instead
+    /// 
     fn index(&self, index: K) -> &Self::Output {
         match self.inner.get(&index) {
             Some(value) => value,
@@ -111,7 +118,7 @@ impl<K: Eq + PartialEq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
     }
 }
 
-impl<K: Eq + PartialEq + Hash, V: Clone> Deref for DefaultHashMap<K, V> {
+impl<K: Eq + Hash, V: Clone> Deref for DefaultHashMap<K, V> {
     type Target = HashMap<K, V>;
 
     fn deref(&self) -> &Self::Target {
@@ -119,7 +126,7 @@ impl<K: Eq + PartialEq + Hash, V: Clone> Deref for DefaultHashMap<K, V> {
     }
 }
 
-impl<K: Eq + PartialEq + Hash, V: Clone> DerefMut for DefaultHashMap<K, V> {
+impl<K: Eq + Hash, V: Clone> DerefMut for DefaultHashMap<K, V> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }

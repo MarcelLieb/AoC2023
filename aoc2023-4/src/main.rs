@@ -1,5 +1,9 @@
-use std::{collections::HashMap, fs, ops::{DerefMut, Deref, Index}};
 use std::hash::Hash;
+use std::{
+    collections::HashMap,
+    fs,
+    ops::{Deref, DerefMut, Index},
+};
 
 fn main() {
     let input: Vec<String> = fs::read_to_string("./input.txt")
@@ -70,17 +74,20 @@ fn parse_card(card: &str) -> (u32, Vec<u32>, Vec<u32>) {
     (card, winning, numbers)
 }
 
-struct DefaultHashMap<K : Eq + PartialEq + Hash, V: Clone> {
+struct DefaultHashMap<K: Eq + PartialEq + Hash, V: Clone> {
     inner: HashMap<K, V>,
     default_value: V,
 }
 
-impl<K: Eq + PartialEq + Hash,V: Clone> DefaultHashMap<K, V> {
-    fn new(default: V) -> DefaultHashMap<K, V>{
-        DefaultHashMap{inner: HashMap::new(), default_value: default}
+impl<K: Eq + PartialEq + Hash, V: Clone> DefaultHashMap<K, V> {
+    fn new(default: V) -> DefaultHashMap<K, V> {
+        DefaultHashMap {
+            inner: HashMap::new(),
+            default_value: default,
+        }
     }
 
-    fn entry_default(&mut self, key: K) -> &mut V{
+    fn entry_default(&mut self, key: K) -> &mut V {
         let default = self.default_value.clone();
         self.entry(key).or_insert(default)
     }
@@ -91,7 +98,7 @@ impl<K: Eq + PartialEq + Hash,V: Clone> DefaultHashMap<K, V> {
     }
 }
 
-impl <K: Eq + PartialEq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
+impl<K: Eq + PartialEq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
     type Output = V;
     /*
     Don't use this if you want the entry to be added
@@ -99,7 +106,7 @@ impl <K: Eq + PartialEq + Hash, V: Clone> Index<K> for DefaultHashMap<K, V> {
     fn index(&self, index: K) -> &Self::Output {
         match self.inner.get(&index) {
             Some(value) => value,
-            None => &self.default_value
+            None => &self.default_value,
         }
     }
 }

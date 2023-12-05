@@ -88,13 +88,11 @@ impl BigNumberMap {
         self.offset_map
             .insert((from_start, from_start + length - 1), offset);
     }
-}
 
-impl BigNumberMap {
     fn index(&self, index: u64) -> u64 {
-        for (start, end) in self.offset_map.keys() {
-            if index >= *start && index <= *end {
-                return (self.offset_map[&(*start, *end)] + index as i64) as u64;
+        for &(start, end) in self.offset_map.keys() {
+            if index >= start && index <= end {
+                return (self.offset_map[&(start, end)] + index as i64) as u64;
             }
         }
         return index;

@@ -58,7 +58,7 @@ fn main() {
 
 fn check_boundary(input: &[Vec<char>], row: usize, pos: Range<usize>) -> bool {
     for y in input.bounded_range_inclusive(row.saturating_sub(1)..=(row + 1)) {
-        for x in input[y].bounded_range_inclusive(pos.clone().next().unwrap().saturating_sub(1)..=pos.clone().last().unwrap() + 1) {
+        for x in input[y].bounded_range(pos.start.saturating_sub(1)..pos.end + 1) {
             if input[y][x].is_digit(10) || input[y][x] == '.' {
                 continue;
             }
@@ -95,25 +95,20 @@ trait BoundChecks {
 
 impl<T> BoundChecks for Vec<T> {
     fn bounded_range(&self, range: Range<usize>) -> Range<usize> {
-        let mut range = range;
-        range.next().unwrap().max(0)..
-        range.last().unwrap().min(self.len())
+        range.start..range.end.min(self.len())
     }
 
     fn bounded_range_inclusive(&self, range: RangeInclusive<usize>) -> RangeInclusive<usize> {
-        let mut range = range;
-        range.next().unwrap().max(0)..=range.last().unwrap().min(self.len() - 1)
+        *range.start()..=(*range.end()).min(self.len() - 1)
     }
 }
 
 impl<T> BoundChecks for [T] {
     fn bounded_range(&self, range: Range<usize>) -> Range<usize> {
-        let mut range = range;
-        range.next().unwrap().max(0)..range.last().unwrap().min(self.len())
+        range.start..range.end.min(self.len())
     }
 
     fn bounded_range_inclusive(&self, range: RangeInclusive<usize>) -> RangeInclusive<usize> {
-        let mut range = range;
-        range.next().unwrap().max(0)..=range.last().unwrap().min(self.len() - 1)
+        *range.start()..=(*range.end()).min(self.len() - 1)
     }
 }

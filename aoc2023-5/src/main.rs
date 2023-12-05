@@ -20,12 +20,27 @@ fn main() {
         .iter()
         .zip(seeds.iter().skip(1))
         .step_by(2)
+        .map(|(&start, &len)| (start, start + len - 1))
+        .map(|(start, end)| map_range_to_end(start, end, &maps))
+        .flatten()
+        .map(|(start, _)| start)
+        .min()
+        .unwrap();
+
+    println!("{}", part_two);
+
+    /*
+    let brute_force = seeds
+        .iter()
+        .zip(seeds.iter().skip(1))
+        .step_by(2)
         .map(|(&start, &len)| (start..start + len))
         .flatten()  // 2_510_890_762 elements
         .map(|seed| map_to_end(seed, &maps))
         .min()
         .unwrap();
-    println!("{}", part_two);
+    println!("{}", brute_force);
+     */
 }
 
 fn map_to_end(n: u64, maps: &[BigNumberMap]) -> u64 {
@@ -33,6 +48,23 @@ fn map_to_end(n: u64, maps: &[BigNumberMap]) -> u64 {
     for map in maps.iter() {
         out = map.index(out);
     }
+    out
+}
+
+fn map_range_to_end(start: u64, end: u64, maps: &[BigNumberMap]) -> Vec<(u64, u64)>{
+    let mut out = vec![(start, end)];
+    for map in maps.iter() {
+        let mut step: Vec<(u64, u64)> = Vec::new();
+        for &(start, end) in out.iter() {
+            let mut output = map.map_range(start, end);
+            step.append(&mut output);
+        }
+        step.sort_by(|(a, _), (b, _)| a.cmp(b));
+        step.dedup();
+        out = step;
+    }
+    println!("{:?}\n", out);
+
     out
 }
 
@@ -96,5 +128,33 @@ impl BigNumberMap {
             }
         }
         return index;
+    }
+
+    fn map_range(&self, start: u64, end: u64) -> Vec<(u64, u64)> {
+        let mut start = start;
+        let mut out = Vec::new();
+        let mut keys = self.offset_map.keys().collect::<Vec<_>>();
+        keys.sort_by(|(a, _), (b, _)| a.cmp(b));
+
+        assert!(keys[0].0 < keys[1].0);
+
+        for &&(a, b) in keys.iter() {
+            if start > end {
+                break;
+            }
+            if start < a {
+                out.push((start, a - 1));
+                start = a;
+            }
+            if start <= b {
+                let offset = self.offset_map[&(a, b)];
+                out.push(((start as i64 + offset) as u64, (end.min(b) as i64 + offset) as u64));
+                start = b + 1;
+            }
+        }
+        if start < end {
+            out.push((start, end));
+        }
+        out
     }
 }

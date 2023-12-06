@@ -1,4 +1,4 @@
-use std::{fs, ops::Add};
+use std::fs;
 
 fn main() {
     let input: Vec<_> = fs::read_to_string("./input.txt")
@@ -29,7 +29,6 @@ fn main() {
         .count();
 
     println!("{}", part_two);
-
 }
 
 fn parse_races(input: &[String]) -> Vec<(u64, u64)> {
@@ -63,7 +62,7 @@ fn parse_long_race(input: &[String]) -> (u64, u64) {
         .1
         .split_whitespace()
         .map(str::to_string)
-        .fold(String::new(), |acc, num| acc.add(&num))
+        .fold(String::new(), |acc, num| acc + &num)
         .parse()
         .unwrap();
 
@@ -73,7 +72,7 @@ fn parse_long_race(input: &[String]) -> (u64, u64) {
         .1
         .split_whitespace()
         .map(str::to_string)
-        .fold(String::new(), |acc, num| acc.add(&num))
+        .fold(String::new(), |acc, num| acc + &num)
         .parse()
         .unwrap();
     (time, distance)

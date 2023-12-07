@@ -12,7 +12,7 @@ fn main() {
 
     let mut game: Vec<_> = input
         .iter()
-        .map(|line| line.split_once(" ").unwrap())
+        .map(|line| line.split_once(' ').unwrap())
         .map(|(hand, bid)| (Hand::new(hand, false), bid.parse::<u32>().unwrap()))
         .collect();
 
@@ -29,7 +29,7 @@ fn main() {
 
     let mut game_joker: Vec<_> = input
         .iter()
-        .map(|line| line.split_once(" ").unwrap())
+        .map(|line| line.split_once(' ').unwrap())
         .map(|(hand, bid)| (Hand::new(hand, true), bid.parse::<u32>().unwrap()))
         .collect();
 
@@ -90,7 +90,7 @@ impl Hand {
             match jokers {
                 1 => match value {
                     5 | 0 => value += 1,
-                    3 | 2 | 1 => value += 2,
+                    1..=3 => value += 2,
                     _ => {}
                 },
                 2 => match value {
@@ -102,11 +102,12 @@ impl Hand {
                     4 | 3 => value += 2,
                     _ => {}
                 },
-                4 => match value {
-                    5 => value += 1,
-                    _ => {}
-                },
-                0 | _ => {}
+                4 => {
+                    if value == 5 {
+                        value += 1
+                    }
+                }
+                _ => {}
             }
         }
 
@@ -128,8 +129,7 @@ impl Ord for Hand {
             .cards
             .chars()
             .zip(other.cards.chars())
-            .filter(|(a, b)| a != b)
-            .next()
+            .find(|(a, b)| a != b)
             .unwrap();
         if self.joker {
             ORDER_2

@@ -3,8 +3,6 @@ use std::fs;
 static ORDER: &str = "23456789TJQKA";
 static ORDER_2: &str = "J23456789TQKA";
 
-
-
 fn main() {
     let input: Vec<String> = fs::read_to_string("./input.txt")
         .unwrap()
@@ -20,7 +18,8 @@ fn main() {
 
     game.sort();
 
-    let part_one: u32 = game.iter()
+    let part_one: u32 = game
+        .iter()
         .enumerate()
         // .inspect(|(place, (hand, bid))| println!("Place:{} \t Hand:{}\t Value:{} \t Bid:{}", place + 1, hand.cards, hand.value, bid))
         .map(|(place, (_, bid))| (place + 1) as u32 * bid)
@@ -36,7 +35,8 @@ fn main() {
 
     game_joker.sort();
 
-    let part_two: u32 = game_joker.iter()
+    let part_two: u32 = game_joker
+        .iter()
         .enumerate()
         //.inspect(|(place, (hand, bid))| println!("Place:{} \t Hand:{}\t Value:{} \t Bid:{}", place + 1, hand.sorted, hand.value, bid))
         .map(|(place, (_, bid))| (place + 1) as u32 * bid)
@@ -44,7 +44,6 @@ fn main() {
 
     println!("{}", part_two);
 }
-
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 struct Hand {
@@ -76,78 +75,52 @@ impl Hand {
                 while occurrences == 1 {
                     let item = items.next().unwrap().1;
                     occurrences = cards.chars().filter(|&c| c == item).count();
-                };
+                }
                 if occurrences == 3 {
                     3
-                }
-                else {
+                } else {
                     2
                 }
             }
             4 => 1,
-            _ => 0
+            _ => 0,
         };
         if joker {
             let jokers = cards.chars().filter(|&c| c == 'J').count();
             match jokers {
-                1 => {
-                    match value {
-                        5 | 0 => value += 1,
-                        3 | 2 | 1 => value += 2,
-                        _ => {}
-                    }
+                1 => match value {
+                    5 | 0 => value += 1,
+                    3 | 2 | 1 => value += 2,
+                    _ => {}
                 },
-                2 => {
-                    match value {
-                        4 | 1 => value += 2,
-                        2 => value += 3,
-                        _ => {}
-                    }
-                }
-                3 => {
-                    match value {
-                        4 | 3 => value += 2,
-                        _ => {}
-                    }
-                }
-                4 => {
-                    match value {
-                        5 => value += 1,
-                        _ => {}
-                    }
-                }
+                2 => match value {
+                    4 | 1 => value += 2,
+                    2 => value += 3,
+                    _ => {}
+                },
+                3 => match value {
+                    4 | 3 => value += 2,
+                    _ => {}
+                },
+                4 => match value {
+                    5 => value += 1,
+                    _ => {}
+                },
                 0 | _ => {}
             }
         }
 
-        Hand { cards: cards.to_string(), value, joker, sorted }
-    }
-}
-
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        if self.value != other.value {
-            return self.value.partial_cmp(&other.value);
-        }
-        let (first, second) = self
-            .cards
-            .chars()
-            .zip(other.cards.chars())
-            .filter(|(a, b)| a != b)
-            .next()
-            .unwrap();
-        if self.joker {
-            ORDER_2.find(first).unwrap().partial_cmp(&ORDER_2.find(second).unwrap())
-        }
-        else {
-            ORDER.find(first).unwrap().partial_cmp(&ORDER.find(second).unwrap())
+        Hand {
+            cards: cards.to_string(),
+            value,
+            joker,
+            sorted,
         }
     }
 }
 
 impl Ord for Hand {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        println!("I compare");
         if self.value != other.value {
             return self.value.cmp(&other.value);
         }
@@ -159,10 +132,18 @@ impl Ord for Hand {
             .next()
             .unwrap();
         if self.joker {
-            ORDER_2.find(first).unwrap().cmp(&ORDER_2.find(second).unwrap())
-        }
-        else {
+            ORDER_2
+                .find(first)
+                .unwrap()
+                .cmp(&ORDER_2.find(second).unwrap())
+        } else {
             ORDER.find(first).unwrap().cmp(&ORDER.find(second).unwrap())
         }
+    }
+}
+
+impl PartialOrd for Hand {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
